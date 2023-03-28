@@ -9,6 +9,8 @@ public class BankRequest {
 	@JsonProperty("password")		//讓post的JSON屬性字段"password"對應上JAVA程式碼內的pwd
 	private String pwd;
 	
+	private int amount;
+	
 	public BankRequest() {
 	}
 	
@@ -16,6 +18,15 @@ public class BankRequest {
 		this.account = account;
 		this.pwd = pwd;
 	}
+	
+	public int getAmount() {
+		return amount;
+	}
+
+	public void setAmount(int amount) {
+		this.amount = amount;
+	}
+
 	public String getAccount() {
 		return account;
 	}

@@ -1,5 +1,7 @@
 package com.example.SpringBoot.entity;
 
+import java.util.LinkedHashMap;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -14,9 +16,19 @@ public class Bank {
 	
 	private String pwd;
 	
+	private LinkedHashMap accountMap = new LinkedHashMap<String , String>();
+	
 	private int amount = 0;
 	
 	
+	public LinkedHashMap getAccountMap() {
+		return accountMap;
+	}
+
+	public void setAccountMap(LinkedHashMap accountMap) {
+		this.accountMap = accountMap;
+	}
+
 	public String getPwd() {
 		return pwd;
 	}

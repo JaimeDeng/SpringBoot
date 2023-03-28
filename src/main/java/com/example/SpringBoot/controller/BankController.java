@@ -39,4 +39,25 @@ public class BankController {
 		br = bs.getAmount(bankRequest);
 		return br;
 	}
+	
+	@PostMapping("/setAccount")	//等同於method = POST
+	public BankResponse createAccountAndPwd(@RequestBody BankRequest bankRequest) {	//帳號密碼由外部匯入
+		BankResponse br = new BankResponse();
+		br = bs.createAccountAndPwd(bankRequest);
+		return br;
+	}
+	
+	@PostMapping("/deposit")	//等同於method = POST
+	public BankResponse deposit(@RequestBody BankRequest bankRequest) {	//帳號密碼由外部匯入
+		BankResponse br = new BankResponse();
+		br = bs.deposit(bankRequest);
+		return br;
+	}
+	@PostMapping("/withdraw")	//等同於method = POST
+	public BankResponse withdraw(@RequestBody BankRequest bankRequest) {	//帳號密碼由外部匯入
+		BankResponse br = new BankResponse();
+		br = bs.withdraw(bankRequest);
+		return br;
+	}
+
 }

@@ -9,9 +9,9 @@ import com.example.SpringBoot.vo.BankResponse;
 @Repository
 public interface BankService {
 	
-	public void createAccountAndPwd(String account , String pwd);
+	public BankResponse createAccountAndPwd(BankRequest bankRequest);
 	public BankResponse getAmount(BankRequest bankRequest);
-	public void deposit(Bank bank , int depositAmount);
-	public void withDraw(Bank bank , int withdrawAmount);
+	public BankResponse deposit(BankRequest bankRequest);
+	public BankResponse withdraw(BankRequest bankRequest);
 	
 }
