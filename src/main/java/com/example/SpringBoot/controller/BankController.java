@@ -33,7 +33,7 @@ public class BankController {
 //			produces = MediaType.APPLICATION_JSON_VALUE)
 //	@RequestMapping(value = "/getAmount" , method = RequestMethod.POST)
 	
-	@PostMapping("/getAmount")	//等同於method = POST
+	@PostMapping("/getBalance")	//等同於method = POST
 	public BankResponse getAmount(@RequestBody BankRequest bankRequest) {	//帳號密碼由外部匯入
 		BankResponse br = new BankResponse();
 		br = bs.getAmount(bankRequest);

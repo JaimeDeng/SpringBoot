@@ -1,5 +1,6 @@
 package com.example.SpringBoot.service;
 
+import java.util.AbstractMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -21,17 +22,29 @@ public class BankServiceImpl implements BankService {
 	public BankResponse getAmount(BankRequest bankRequest) {
 		// 1. 撈DB確認資料->帳號 . 密碼 (但目前沒有DB , 先自製資料)
 		BankResponse br = new BankResponse();
+		String account = bankRequest.getAccount();
+		String pwd = bankRequest.getPwd();
+		
+		if(bank.getAccountMap().isEmpty()) {
+			br.message = "尚未有帳號存在";
+		}
 		Iterator<Map.Entry<String, String>> iterator = bank.getAccountMap().entrySet().iterator();
 		while (iterator.hasNext()) {
 		    Map.Entry<String,String> entry = iterator.next();
 		    String key = entry.getKey();
 		    String value = entry.getValue();
-		    if(bankRequest.getAccount().equals(key) && bankRequest.getPwd().equals(value)) {
+		    if(account.equals(key) && pwd.equals(value)) {
+		    	br.message = account + "登入成功!";
 		    	System.out.println("登入成功!");
-				br.setAccount(bankRequest.getAccount());
-				br.setAmount(bank.getAmount());
+				br.setAccount(account);
+				int balance = (int) bank.getBalanceMap().get(account);
+				br.setBalance(balance);
+				if(bank.getBalanceMap().get(account) == null) {
+					br.message = "尚未進行初次存款";
+				}
+				return br;
 		    }else {
-				br.setAccount("this account is invalid");
+				br.message = "this account is invalid";
 		    }
 		}
 		return br;
@@ -44,6 +57,11 @@ public class BankServiceImpl implements BankService {
 	@Override
 	public BankResponse deposit(BankRequest bankRequest) {
 		BankResponse br = new BankResponse();
+		String account = bankRequest.getAccount();
+		String pwd = bankRequest.getPwd();
+		int amount = bankRequest.getAmount();
+		int balance = (int) bank.getBalanceMap().get(account);
+		
 		if(bank.getAccountMap().isEmpty()) {
 			br.message = "尚未有帳號存在";
 		}
@@ -52,12 +70,14 @@ public class BankServiceImpl implements BankService {
 		    Map.Entry<String,String> entry = iterator.next();
 		    String key = entry.getKey();
 		    String value = entry.getValue();
-		    if(bankRequest.getAccount().equals(key) && bankRequest.getPwd().equals(value)){
+		    if(account.equals(key) && pwd.equals(value)){
 		    	br.message = "登入成功 , 存款" + bankRequest.getAmount() + "元";
 		    	System.out.println("登入成功 , 存款" + bankRequest.getAmount() + "元");
-		    	bank.setAmount(bank.getAmount()+bankRequest.getAmount());
+		    	balance = amount + balance;
+		    	bank.getBalanceMap().put(account, amount);
 		    	br.setAccount(bankRequest.getAccount());
-		    	br.setAmount(bank.getAmount());
+		    	br.setBalance(balance);
+		    	return br;
 		    }else {
 		    	br.message = "無此帳號";
 		    	System.out.println("無此帳號");
@@ -76,31 +96,39 @@ public class BankServiceImpl implements BankService {
 	@Override
 	public BankResponse withdraw(BankRequest bankRequest) {
 		BankResponse br = new BankResponse();
-		Iterator<Map.Entry<String, String>> iterator = bank.getAccountMap().entrySet().iterator();
-		if(bankRequest.getAmount() <= 0) {
+		String account = bankRequest.getAccount();
+		int amount = bankRequest.getAmount();
+		int balance = (int) bank.getBalanceMap().get(account);
+		
+		if(amount <= 0) {
 			br.message = "提款金額不得低於1元";
 			return br;
 		}
+		Iterator<Map.Entry<String, String>> iterator = bank.getAccountMap().entrySet().iterator();
 		while (iterator.hasNext()) {
 		    Map.Entry<String,String> entry = iterator.next();
 		    String key = entry.getKey();
 		    String value = entry.getValue();
 		    if(bankRequest.getAccount().equals(key) && bankRequest.getPwd().equals(value)){
-			br.message = "success";
-			int recentAmount = bank.getAmount();
-				if(bank.getAmount() >= bankRequest.getAmount()) {
-					recentAmount -= bankRequest.getAmount();
+				if(balance >= amount) {
+					balance -= amount;
 					System.out.println("提款: " + bankRequest.getAmount() + "元");
+					bank.getBalanceMap().put(account, balance);
 					System.out.println("提款完成");
+					br.message = "提款完成";
+					br.setAccount(account);
+					br.setBalance(balance);
+					return br;
 				} else {
 					System.out.println("提款: " + bankRequest.getAmount() + "元");
 					System.out.println("提款失敗 , 您的餘額不足!");
-					br.message = "提款失敗,餘額不足";
+					br.message = "提款失敗 , 您的餘額不足!";
+					br.setAccount(account);
+					br.setBalance(balance);
 				}
-			bank.setAmount(recentAmount);
-			System.out.println("帳戶: " + bank.getAccount() + " , 餘額: " + bank.getAmount());
-			br.setAccount(bankRequest.getAccount());
-			br.setAmount(recentAmount);
+		    }else {
+		    	br.message = "無此帳號";
+		    	System.out.println("無此帳號");
 		    }
 		}
 		return br;
@@ -109,21 +137,24 @@ public class BankServiceImpl implements BankService {
 	@Override
 	public BankResponse createAccountAndPwd(BankRequest bankRequest) {
 		BankResponse br = new BankResponse();
-		if(bank.getAccountMap().containsKey(bankRequest.getAccount())) {
+		String account = bankRequest.getAccount();
+		String pwd = bankRequest.getPwd();
+		if(bank.getAccountMap().containsKey(account)){
 			br.message = "account is exist";
-		}
-		if(bankRequest.getAccount() != null && !bankRequest.getAccount().isBlank()
-				&& bankRequest.getPwd() != null && !bankRequest.getPwd().isBlank()
-				&& !bank.getAccountMap().containsKey(bankRequest.getAccount())) {
-			bank.getAccountMap().put(bankRequest.getAccount(), bankRequest.getPwd());
-			System.out.println("帳號密碼設置完成!");
-			br.setAccount(bankRequest.getAccount());
-			br.setPwd(bankRequest.getPwd());
-			br.message = "success!";
 		}else {
-			br.message = "failed : illegal format";
+			if(bankRequest.getAccount() != null && !bankRequest.getAccount().isBlank()
+					&& bankRequest.getPwd() != null && !bankRequest.getPwd().isBlank()
+					&& !bank.getAccountMap().containsKey(bankRequest.getAccount())) {
+				bank.getAccountMap().put(account, pwd);
+				System.out.println("帳號密碼設置完成!");
+				bank.getBalanceMap().put(account, 0);
+				br.setAccount(account);
+				br.setPwd(pwd);
+				br.message = "帳號密碼設置完成!";
+			}else {
+				br.message = "failed : illegal format";
+			}
 		}
 		return br;
 	}
-
 }

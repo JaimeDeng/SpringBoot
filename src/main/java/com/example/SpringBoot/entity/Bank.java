@@ -1,6 +1,10 @@
 package com.example.SpringBoot.entity;
 
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,67 +16,30 @@ import com.example.SpringBoot.service.Animal;
 public class Bank {
 	
 	
-	private String account;
+//	private String account;
+//	
+//	private String pwd;
 	
-	private String pwd;
+	private LinkedHashMap AccountMap = new LinkedHashMap<String , String>();
 	
-	private LinkedHashMap accountMap = new LinkedHashMap<String , String>();
-	
-	private int amount = 0;
-	
-	
+	private LinkedHashMap balanceMap = new LinkedHashMap<String , Integer>();
+
 	public LinkedHashMap getAccountMap() {
-		return accountMap;
+		return AccountMap;
 	}
 
 	public void setAccountMap(LinkedHashMap accountMap) {
-		this.accountMap = accountMap;
+		AccountMap = accountMap;
 	}
 
-	public String getPwd() {
-		return pwd;
+	public LinkedHashMap getBalanceMap() {
+		return balanceMap;
 	}
 
-	public void setPwd(String pwd) {
-		this.pwd = pwd;
-	}
-
-	public String getAccount() {
-		return account;
-	}
-
-	public void setAccount(String account) {
-		this.account = account;
-	}
-
-	public int getAmount() {
-		return amount;
-	}
-
-	public void setAmount(int amount) {
-		this.amount = amount;
+	public void setBalanceMap(LinkedHashMap balanceMap) {
+		this.balanceMap = balanceMap;
 	}
 
 	public Bank() {
-	}
-	
-	public Bank(String account) {
-		this.account = account;
-	}
-	
-	public Bank(String account, int amount) {
-		this.account = account;
-		this.amount = amount;
-	}
-	
-	public Bank(String account, String pwd) {
-		this.account = account;
-		this.pwd = pwd;
-	}
-	
-	public Bank(String account, String pwd , int amount) {
-		this.account = account;
-		this.pwd = pwd;
-		this.amount = amount;
 	}
 }
