@@ -5,18 +5,23 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.example.SpringBoot.entity.Bank;
+import com.example.SpringBoot.repository.BankDao;
 import com.example.SpringBoot.vo.BankRequest;
 import com.example.SpringBoot.vo.BankResponse;
 
-import antlr.StringUtils;
 
 @Service
 public class BankServiceImpl implements BankService {
 	
 	Bank bank = new Bank();
+	
+	@Autowired
+	BankDao bankDao;
 
 	@Override
 	public BankResponse getAmount(BankRequest bankRequest) {
@@ -25,26 +30,20 @@ public class BankServiceImpl implements BankService {
 		String account = bankRequest.getAccount();
 		String pwd = bankRequest.getPwd();
 		
-		if(bank.getAccountMap().isEmpty()) {
-			br.message = "尚未有帳號存在";
-		}
-		Iterator<Map.Entry<String, String>> iterator = bank.getAccountMap().entrySet().iterator();
-		while (iterator.hasNext()) {
-		    Map.Entry<String,String> entry = iterator.next();
-		    String key = entry.getKey();
-		    String value = entry.getValue();
-		    if(account.equals(key) && pwd.equals(value)) {
+		if(bankDao.findAll().isEmpty()) {
+			br.message = "Database尚未有帳號存在";
+			return br;
+		}else {
+		    if(checkAccount(account , pwd)) {
 		    	br.message = account + "登入成功!";
 		    	System.out.println("登入成功!");
 				br.setAccount(account);
-				int balance = (int) bank.getBalanceMap().get(account);
+				int balance = bankDao.getById(account).getBalance();
+				bank.setAll(account, pwd, balance);
 				br.setBalance(balance);
-				if(bank.getBalanceMap().get(account) == null) {
-					br.message = "尚未進行初次存款";
-				}
 				return br;
 		    }else {
-				br.message = "this account is invalid";
+				br.message = "帳號或密碼錯誤";
 		    }
 		}
 		return br;
@@ -57,34 +56,31 @@ public class BankServiceImpl implements BankService {
 		String pwd = bankRequest.getPwd();
 		int amount = bankRequest.getAmount();
 		
-		if(bank.getAccountMap().isEmpty()) {
+		if(bankDao.findAll().isEmpty()) {
 			br.message = "尚未有帳號存在";
-		}
-		if(!bank.getAccountMap().containsKey(account)){
-	    	br.message = "無此帳號";
-	    	System.out.println("無此帳號");
-	    	return br;
-		}
-		int balance = (int) bank.getBalanceMap().get(account);
-		Iterator<Map.Entry<String, String>> iterator = bank.getAccountMap().entrySet().iterator();
-		while (iterator.hasNext()) {
-		    Map.Entry<String,String> entry = iterator.next();
-		    String key = entry.getKey();
-		    String value = entry.getValue();
-		    if(account.equals(key) && pwd.equals(value)){
+			return br;
+		}else {
+			if(!bankDao.existsById(account)){
+		    	br.message = "無此帳號";
+		    	System.out.println("無此帳號");
+		    	return br;
+			}
+		    if(checkAccount(account , pwd)){
+		    	int balance = bankDao.getById(account).getBalance();
+		    	balance = amount + balance;
+		    	bank.setAll(account, pwd, balance);
 		    	br.message = "登入成功 , 存款" + amount + "元";
 		    	System.out.println("登入成功 , 存款" + amount + "元");
-		    	balance = amount + balance;
-		    	bank.getBalanceMap().put(account, balance);
 		    	br.setAccount(bankRequest.getAccount());
 		    	br.setBalance(balance);
+		    	bankDao.save(bank);
 		    	return br;
 		    }else {
 		    	br.message = "密碼錯誤";
 		    	System.out.println("密碼錯誤");
 		    }
 		}
-		return br;
+	    return br;
 	}
 
 	@Override
@@ -94,33 +90,31 @@ public class BankServiceImpl implements BankService {
 		String pwd = bankRequest.getPwd();
 		int amount = bankRequest.getAmount();
 		
-		if(bank.getAccountMap().isEmpty()) {
+		if(bankDao.findAll().isEmpty()) {
 			br.message = "尚未有帳號存在";
-		}
-		if(!bank.getAccountMap().containsKey(account)){
-	    	br.message = "無此帳號";
-	    	System.out.println("無此帳號");
-	    	return br;
-		}
-		if(amount <= 0) {
-			br.message = "提款金額不得低於1元";
 			return br;
-		}
-		int balance = (int) bank.getBalanceMap().get(account);
-		Iterator<Map.Entry<String, String>> iterator = bank.getAccountMap().entrySet().iterator();
-		while (iterator.hasNext()) {
-		    Map.Entry<String,String> entry = iterator.next();
-		    String key = entry.getKey();
-		    String value = entry.getValue();
-		    if(account.equals(key) && pwd.equals(value)){
+		}else {
+			if(!bankDao.existsById(account)){
+		    	br.message = "無此帳號";
+		    	System.out.println("無此帳號");
+		    	return br;
+			}
+			if(amount <= 0) {
+				br.message = "提款金額不得低於1元";
+				return br;
+			}
+			int balance = bankDao.getById(account).getBalance();
+			    if(checkAccount(account , pwd)){
 				if(balance >= amount) {
 					balance -= amount;
-					System.out.println("提款: " + amount + "元");
-					bank.getBalanceMap().put(account, balance);
+					System.out.println("登入成功 , 提款: " + amount + "元");
+					bank.setBalance(balance);
 					System.out.println("提款完成");
-					br.message = "提款完成";
+					br.message = "登入成功 , 提款"  + amount + "元";
+					bank.setAll(account, pwd, balance);
 					br.setAccount(account);
 					br.setBalance(balance);
+					bankDao.save(bank);
 					return br;
 				} else {
 					System.out.println("提款: " + amount + "元");
@@ -134,7 +128,7 @@ public class BankServiceImpl implements BankService {
 		    	System.out.println("密碼錯誤");
 		    }
 		}
-		return br;
+	    return br;
 	}
 
 	@Override
@@ -142,22 +136,31 @@ public class BankServiceImpl implements BankService {
 		BankResponse br = new BankResponse();
 		String account = bankRequest.getAccount();
 		String pwd = bankRequest.getPwd();
-		if(bank.getAccountMap().containsKey(account)){
-			br.message = "account is exist";
+		
+		if(bankDao.existsById(account)) {
+			br.message = "該帳號已存在";
+			return br;
+		}
+		if(!StringUtils.hasText(account)
+				&& StringUtils.hasText(pwd)) {
+			bank.setAll(account, pwd, 0);
+			System.out.println("帳號密碼設置完成!");
+			br.setAccount(account);
+			br.setPwd(pwd);
+			bankDao.save(bank);
+			br.message = "帳號密碼設置完成!";
 		}else {
-			if(bankRequest.getAccount() != null && !bankRequest.getAccount().isBlank()
-					&& bankRequest.getPwd() != null && !bankRequest.getPwd().isBlank()
-					&& !bank.getAccountMap().containsKey(bankRequest.getAccount())) {
-				bank.getAccountMap().put(account, pwd);
-				System.out.println("帳號密碼設置完成!");
-				bank.getBalanceMap().put(account, 0);
-				br.setAccount(account);
-				br.setPwd(pwd);
-				br.message = "帳號密碼設置完成!";
-			}else {
-				br.message = "failed : illegal format";
-			}
+			br.message = "failed : illegal format";
 		}
 		return br;
 	}
+	
+	//帳密確認功能
+	private boolean checkAccount(String account , String pwd) {
+	    if(bankDao.existsById(account) && bankDao.getById(account).getPwd().equals(pwd)) {
+	    	return true;
+	    }
+			return false;
+		}
+	
 }
