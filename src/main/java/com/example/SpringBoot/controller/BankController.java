@@ -27,34 +27,28 @@ public class BankController {
 	@Autowired
 	private BankService bs;
 	
-//	@CrossOrigin
-//	@PostMapping(value = "/bs" , 
-//			consumes = MediaType.APPLICATION_JSON_VALUE ,
-//			produces = MediaType.APPLICATION_JSON_VALUE)
-//	@RequestMapping(value = "/getAmount" , method = RequestMethod.POST)
-	
 	@PostMapping("/getBalance")	//等同於method = POST
-	public BankResponse getAmount(@RequestBody BankRequest bankRequest) {	//帳號密碼由外部匯入
+	public BankResponse getAmount(@RequestBody BankRequest bankRequest) {
 		BankResponse br = new BankResponse();
 		br = bs.getAmount(bankRequest);
 		return br;
 	}
 	
 	@PostMapping("/setAccount")	//等同於method = POST
-	public BankResponse createAccountAndPwd(@RequestBody BankRequest bankRequest) {	//帳號密碼由外部匯入
+	public BankResponse createAccountAndPwd(@RequestBody BankRequest bankRequest) {
 		BankResponse br = new BankResponse();
 		br = bs.createAccountAndPwd(bankRequest);
 		return br;
 	}
 	
 	@PostMapping("/deposit")	//等同於method = POST
-	public BankResponse deposit(@RequestBody BankRequest bankRequest) {	//帳號密碼由外部匯入
+	public BankResponse deposit(@RequestBody BankRequest bankRequest) {
 		BankResponse br = new BankResponse();
 		br = bs.deposit(bankRequest);
 		return br;
 	}
 	@PostMapping("/withdraw")	//等同於method = POST
-	public BankResponse withdraw(@RequestBody BankRequest bankRequest) {	//帳號密碼由外部匯入
+	public BankResponse withdraw(@RequestBody BankRequest bankRequest) {
 		BankResponse br = new BankResponse();
 		br = bs.withdraw(bankRequest);
 		return br;

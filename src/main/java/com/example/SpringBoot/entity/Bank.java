@@ -14,8 +14,7 @@ import com.example.SpringBoot.service.Active;
 import com.example.SpringBoot.service.Animal;
 
 public class Bank {
-	
-	
+
 //	private String account;
 //	
 //	private String pwd;
