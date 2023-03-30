@@ -13,6 +13,7 @@ import com.example.SpringBoot.entity.Bank;
 import com.example.SpringBoot.repository.BankDao;
 import com.example.SpringBoot.vo.BankRequest;
 import com.example.SpringBoot.vo.BankResponse;
+import com.example.SpringBoot.vo.BankUpdateRequest;
 
 
 @Service
@@ -141,7 +142,7 @@ public class BankServiceImpl implements BankService {
 			br.message = "該帳號已存在";
 			return br;
 		}
-		if(!StringUtils.hasText(account)
+		if(StringUtils.hasText(account)
 				&& StringUtils.hasText(pwd)) {
 			bank.setAll(account, pwd, 0);
 			System.out.println("帳號密碼設置完成!");
@@ -151,6 +152,37 @@ public class BankServiceImpl implements BankService {
 			br.message = "帳號密碼設置完成!";
 		}else {
 			br.message = "failed : illegal format";
+		}
+		return br;
+	}
+	
+	public BankResponse updatePassword(BankUpdateRequest bankUpdateReq) {
+		BankResponse br = new BankResponse();
+		String reqAccount = bankUpdateReq.getAccount();
+		String reqPwd = bankUpdateReq.getOldPwd();
+		String reqNewPwd = bankUpdateReq.getNewPwd();
+		
+		if(bankDao.findAll().isEmpty()) {
+			br.message = "尚未有帳號存在";
+			return br;
+		}else {
+			if(!bankDao.existsById(reqAccount)){
+		    	br.message = "無此帳號";
+		    	System.out.println("無此帳號");
+		    	return br;
+			}
+		}
+		if(checkAccount(reqAccount , reqPwd) && StringUtils.hasText(reqNewPwd)){
+			int balance = bankDao.getById(reqAccount).getBalance();
+			bank.setAll(reqAccount, reqNewPwd, balance);
+			bankDao.save(bank);
+			br.message = "密碼變更完成";
+		}else if(!StringUtils.hasText(reqNewPwd)) {
+			br.message = "新密碼設置不得為空或null";
+			return br;
+		}else {
+			br.message = "帳號或密碼有誤!";
+			return br;
 		}
 		return br;
 	}

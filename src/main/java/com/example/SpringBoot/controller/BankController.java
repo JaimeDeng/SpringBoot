@@ -22,8 +22,9 @@ import com.example.SpringBoot.repository.BankDao;
 import com.example.SpringBoot.service.BankService;
 import com.example.SpringBoot.vo.BankRequest;
 import com.example.SpringBoot.vo.BankResponse;
+import com.example.SpringBoot.vo.BankUpdateRequest;
 
-@RestController
+//@RestController
 public class BankController {
 
 	@Autowired
@@ -57,6 +58,13 @@ public class BankController {
 	public BankResponse withdraw(@RequestBody BankRequest bankRequest) {
 		BankResponse br = new BankResponse();
 		br = bs.withdraw(bankRequest);
+		return br;
+	}
+	
+	@PostMapping("/updatePwd")	//等同於method = POST
+	public BankResponse withdraw(@RequestBody BankUpdateRequest bankUpdateReq) {
+		BankResponse br = new BankResponse();
+		br = bs.updatePassword(bankUpdateReq);
 		return br;
 	}
 	
