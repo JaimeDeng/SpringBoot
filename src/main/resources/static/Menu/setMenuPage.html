@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SetMenuPage</title>
+    <style type="text/css">
+
+        *{
+            margin: 0;
+            padding: 0;
+            list-style: none;
+         }
+
+        body{
+            background-color: rgb(240, 240, 240);
+        }
+
+        .frame{
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            margin: 3% 10px;
+            padding: 3% 3%;
+        }
+        .title{
+            margin: 10% 20%;
+        }
+
+        .addToSettingButton{
+            font-size: 100%;
+            margin-top: 20px;
+            padding: 5px 10px;
+        }
+
+        .setting{
+            font-size: 120%;
+            margin: 10px;
+            padding: 10px 20px;
+        }
+
+        .setListContent{
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .MenuContent{
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .backToHP{
+            font-size: 100%;
+            margin-top: 50px;
+            padding: 10px 20px;
+        }
+
+
+
+    </style>
+</head>
+
+<body>
+
+    <div class = "col-12 frame">   
+
+        <h1 calss = "title">SET MENU</h1>
+
+            <div class = "col-12 col-sm-12 col-md-6 name">
+                <h3>餐點名稱</h3>
+                <textarea id = "name"></textarea>
+            </div>
+            
+            <div class = "col-12 col-sm-12 col-md-6 price">
+                <h3>餐點價格</h3>
+                <textarea id = "price"></textarea>
+            </div>
+            <button class = "addToSettingButton" id = "addToSetting">加入設定</button>
+
+            <div class = "col-12 col-sm-12 col-md-6 setList">
+                <div class = "setListContent">
+                    <h2>您的設定</h2>
+                    <br>
+                    <p id = "orderInfo">無</p>
+                    <br>
+                    <button class = "settingButton" id = "setting">確認設定</button>
+                </div>
+            </div>
+
+            <div class = "col-12 col-sm-12 col-md-6 Menu">
+                <div class = "MenuContent">
+                    <h2>已設置餐點</h2>
+                    <p id = "MenuInfo"></p>
+                </div>
+            </div>
+            <button class = "backToHP" id = "backToHP">返回首頁</button>
+
+    </div>
+
+    <script>
+
+        //獲取menuInfo
+        let xhr = new XMLHttpRequest();
+        var menuInfoData;
+        xhr.open("POST","http://localhost:3000/menuInfo");
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send();
+        xhr.onload = function(){ //loading完成後就會繼續執行此function
+            menuInfoData = JSON.parse(xhr.responseText); //利用.parse轉換成陣列
+            console.log(menuInfoData);
+            var MenuInfo = document.getElementById("MenuInfo");
+            if(menuInfoData.length == 0){
+                MenuInfo.innerHTML = "無";
+            }else{
+                for(var i = 0 ; i < menuInfoData.length ; i ++){
+                MenuInfo.innerHTML += "<br>" + menuInfoData[i].name + " " + menuInfoData[i].price;
+                }
+            }
+        }
+
+        var addToSettingButton = document.getElementById("addToSetting");
+        var notFirst = false;
+        var setList = [];
+        function Menu(name, price) {
+            this.name = name;
+            this.price = price;
+        }
+        var menuSet;
+        //按下添加按鈕
+        addToSettingButton.addEventListener("click", function() {
+            var nameTextarea = document.getElementById("name");
+            var setName = encodeURI(nameTextarea.value);
+            setName = decodeURI(setName);   //UniCode轉成中文字
+            var priceValue = document.getElementById("price").value;  //獲取其值的字串
+            var setPrice = parseInt(priceValue);    //轉為int
+            if(setName.length != 0 && setPrice > 0){
+                var setInfo = setName + " " + setPrice;
+                if(!notFirst){  //第一次先覆蓋掉"無"
+                document.getElementById("orderInfo").textContent = setInfo;
+                notFirst = true;
+                }else{  //第二次開始就跳行添加
+                    var orderInfo = document.getElementById("orderInfo");
+                    orderInfo.innerHTML += "<br>" + setInfo;
+                }
+                // 創建一個新的 Menu 物件
+                var newMenu = new Menu(setName, setPrice);
+                setList.push(newMenu);
+                menuSet = JSON.stringify({menuSet : setList});
+                console.log(menuSet);
+            }else{
+                window.alert("您輸入的格式違反規定");
+            }
+
+        });
+
+        var settingButton = document.getElementById("setting");
+        settingButton.addEventListener("click", function() {
+            xhr.open("POST","http://localhost:3000/setMenu");
+            xhr.setRequestHeader("Content-Type", "application/json");   //設置發送端內容為Json格式
+            xhr.send(menuSet);
+            xhr.onload = function(){ //loading完成後就會繼續執行此function
+                data = JSON.parse(xhr.responseText); //利用.parse轉換成陣列
+                console.log(data);
+                window.alert("設置完成!")
+                //更新MenuInfo
+                xhr.open("POST","http://localhost:3000/menuInfo");
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send();
+                xhr.onload = function(){ //loading完成後就會繼續執行此function
+                    menuInfoData = JSON.parse(xhr.responseText); //利用.parse轉換成陣列
+                    console.log(menuInfoData);
+                    var MenuInfo = document.getElementById("MenuInfo");
+                    MenuInfo.innerHTML = "";
+                    for(var i = 0 ; i < menuInfoData.length ; i ++){
+                        MenuInfo.innerHTML += "<br>" + menuInfoData[i].name + " " + menuInfoData[i].price;
+                    }
+                }
+            }
+        });
+        
+        //返回首頁
+        var backToHP = document.getElementById("backToHP");
+        backToHP.addEventListener("click", function() {
+            window.location.href = "homepage.html";
+        });
+
+        
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js" integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD" crossorigin="anonymous"></script>
+</body>
+</html>

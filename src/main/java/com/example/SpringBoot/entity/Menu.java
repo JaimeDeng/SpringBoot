@@ -12,7 +12,7 @@ import com.example.SpringBoot.service.Active;
 import com.example.SpringBoot.service.Animal;
 import com.example.SpringBoot.service.OrderService;
 
-//@Entity
+@Entity
 @Table(name = "menu")
 public class Menu {
 	
@@ -23,6 +23,8 @@ public class Menu {
 	@Column(name = "price")
 	private Integer price;
 	
+	private Integer amount;
+
 	public Menu() {
 	}
 	
@@ -46,15 +48,13 @@ public class Menu {
 	public void setPrice(Integer price) {
 		this.price = price;
 	}
+	
+	public Integer getAmount() {
+		return amount;
+	}
 
-//	private TreeMap<String , Integer> menuMap = new TreeMap<String , Integer>();
-//	
-//	public TreeMap<String, Integer> getMenuMap() {
-//		return menuMap;
-//	}
-//
-//	public void setMenuMap(String name , int price) {
-//		menuMap.put(name, price);
-//	}
+	public void setAmount(Integer amount) {
+		this.amount = amount;
+	}
 	
 }

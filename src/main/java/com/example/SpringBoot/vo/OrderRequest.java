@@ -15,7 +15,7 @@ public class OrderRequest {
 	
 	private Integer price;
 	
-	private LinkedHashMap<String , Integer> order = new LinkedHashMap<String , Integer>();
+	private ArrayList<Menu> order = new ArrayList<Menu>();
 	
 	private ArrayList<Menu> menuSet = new ArrayList<Menu>();
 	
@@ -43,13 +43,15 @@ public class OrderRequest {
 		this.price = price;
 	}
 
-	public LinkedHashMap<String, Integer> getOrder() {
+	public ArrayList<Menu> getOrder() {
 		return order;
 	}
 
-	public void setOrder(LinkedHashMap<String, Integer> order) {
+	public void setOrder(ArrayList<Menu> order) {
 		this.order = order;
 	}
+
+
 	
 	
 	

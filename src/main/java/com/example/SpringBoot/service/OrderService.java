@@ -16,6 +16,6 @@ public interface OrderService {
 	public OrderResponse setMenu(OrderRequest orderReq);
 	public List menuInfo();
 	public OrderResponse order(OrderRequest orderReq);
-	public List menuInfoByPriceLowerThan();
+	public List getMenuInfoByPriceLowerThan(OrderRequest orderReq);
 	
 }

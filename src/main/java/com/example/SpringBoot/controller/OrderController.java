@@ -27,7 +27,7 @@ import com.example.SpringBoot.vo.BankResponse;
 import com.example.SpringBoot.vo.OrderRequest;
 import com.example.SpringBoot.vo.OrderResponse;
 
-//@RestController
+@RestController
 public class OrderController {
 
 	@Autowired
@@ -37,18 +37,21 @@ public class OrderController {
 	
 	OrderResponse orderRes  = new OrderResponse();
 	
+	@CrossOrigin
 	@PostMapping("/setMenu")	//等同於method = POST
 	public OrderResponse setMenu(@RequestBody OrderRequest orderReq) {
 		orderRes = orderService.setMenu(orderReq);
 		return orderRes;
 	}
 	
+	@CrossOrigin
 	@PostMapping("/order")	//等同於method = POST
 	public OrderResponse order(@RequestBody OrderRequest orderReq) {
 		orderRes = orderService.order(orderReq);
 		return orderRes;
 	}
 	
+	@CrossOrigin
 	@PostMapping("/menuInfo")	//等同於method = POST
 	public List menuInfo() {
 		List list = new ArrayList<>();
@@ -56,11 +59,10 @@ public class OrderController {
 		return list;
 	}
 	
-	@PostMapping("/menuInfoByPriceLowerThan")	//等同於method = POST
-	public List menuInfoByPriceLowerThan() {
-		List list = new ArrayList<>();
-		list = orderService.menuInfoByPriceLowerThan();
-		return list;
+	@CrossOrigin
+	@PostMapping("/getMenuInfoByPriceLowerThan")	//等同於method = POST
+	public List menuInfoByPriceLowerThan(@RequestBody OrderRequest orderReq) {
+		return orderService.getMenuInfoByPriceLowerThan(orderReq);
 	}
 
 }

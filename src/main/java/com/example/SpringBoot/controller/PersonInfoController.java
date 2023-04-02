@@ -15,7 +15,7 @@ import com.example.SpringBoot.service.PersonInfoService;
 import com.example.SpringBoot.vo.PersonInfoReq;
 import com.example.SpringBoot.vo.PersonInfoRes;
 
-@RestController
+//@RestController
 public class PersonInfoController {
 
 	@Autowired
